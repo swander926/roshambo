@@ -1,37 +1,77 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import Page from './pages/Page'
 import Page2 from './pages/Page2'
 import HomePage from './pages/HomePage'
 import NotFound from './pages/NotFound'
 
-const App = () => {
+const PlayerCard = ({ color, symbol }) => {
+  const style = {
+    backgroundColor: color,
+    backgroundImage: 'url(./images/' + symbol + '.png)',
+  }
+
   return (
-    <Router>
-      <header>
-        <h1>Welcome to my SPA</h1>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Go Home</Link>
-            </li>
-            <li>
-              <Link to="/1">Page 1</Link>
-            </li>
-            <li>
-              <Link to="/2">Page 2</Link>
-            </li>
-          </ul>
-        </nav>
-      </header>
-      <Switch>
-        <Route exact path="/" component={HomePage}></Route>
-        <Route exact path="/1" component={Page}></Route>
-        <Route exact path="/2" component={Page2}></Route>
-        <Route path="*" component={NotFound}></Route>
-      </Switch>
-    </Router>
+    <>
+      <div style={style} className="player-card"></div>
+    </>
   )
 }
 
+const choices = {
+  rock: 0,
+  paper: 1,
+  scissors: 2,
+}
+
+class App extends Component {
+  constructor(props) {
+    super(props)
+    this.symbols = ['rock', 'paper', 'scissors']
+    this.state = {}
+  }
+
+  decideWinner = () => {
+    const { playerBlue, playerRed } = this.state
+    if (playerRed == playerBlue) {
+      return "It's a Draw !"
+    }
+    if (
+      (playerRed === 'rock' && playerBlue === 'scissors') ||
+      (playerRed === 'paper' && playerBlue === 'rock') ||
+      (playerRed === 'scissors' && playerBlue === 'paper')
+    ) {
+      return 'Red player Wins !'
+    }
+    return 'Blue player Wins !'
+  }
+
+  runGame = () => {
+    let counter = 0
+    let myInterval = setInterval(() => {
+      counter++
+      this.setState({
+        playerRed: this.symbols[Math.floor(Math.random() * 3)],
+        playerBlue: this.symbols[Math.floor(Math.random() * 3)],
+      })
+      if (counter > 15) {
+        clearInterval(myInterval)
+        this.setState({ winner: this.decideWinner() })
+      }
+    }, 100)
+  }
+
+  render() {
+    return (
+      <>
+        <div className="App">
+          <PlayerCard color="red" symbol={this.state.playerRed} />
+          <PlayerCard color="blue" symbol={this.state.playerBlue} />
+          <p>{this.state.winner}</p>
+          <button onClick={this.runGame}>Run Game</button>
+        </div>
+      </>
+    )
+  }
+}
 export default App
